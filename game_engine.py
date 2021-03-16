@@ -5,16 +5,22 @@ pg.init()
 ships = pg.sprite.Group()
 ship_map = np.array([[0] * 12 for _ in range(12)])
 
+X1, Y1 = 11, 2
+X2, Y2 = 13, 6
+X3, Y3 = 13, 2
+X4, Y4 = 11, 4
+XS = (X1, X2, X3, X4)
+YS = (Y1, Y2, Y3, Y4)
+
 
 def check_collisions(deck_num, orient, realx, realy):
     global ship_map
     if orient == 'vertical':
-        if deck_num == 2:
-            submat = ship_map[realy - 1:realy + deck_num + 1, realx - 1:realx + 2]
-            if np.sum(submat) == 0:
-                ship_map[realy:realy + deck_num, realx] = np.ones((deck_num, 1)).ravel()
-                return True
-            return False
+        submat = ship_map[realy - 1:realy + deck_num + 1, realx - 1:realx + 2]
+        if np.sum(submat) == 0:
+            ship_map[realy:realy + deck_num, realx] = np.ones((deck_num, 1)).ravel()
+            return True
+        return False
 
 def correct_field(x, y, deck_num, orientation):
     # add horizontal
@@ -55,16 +61,23 @@ class GameField:
 
 
     def draw_static_ships(self):
-        self.screen.blit(deckimages[1], (13 * 75, 4 * 75))
+        self.screen.blit(deckimages[0], (X1 * 75, Y1 * 75))
+        self.screen.blit(deckimages[1], (X2 * 75, Y2 * 75))
+        self.screen.blit(deckimages[2], (X3 * 75, Y3 * 75))
+        self.screen.blit(deckimages[3], (X4 * 75, Y4 * 75))
         # pg.display.flip()
 
 
     def change_ships(self, pos):
         posx, posy = pos
-        # 2dec
-        if 13 * 75 <= posx <= 14 * 75 and 4 * 75 <= posy <= 6 * 75:
-            Ship(2, 13 * 75, 4 * 75, 'vertical')
-            return True, 13 * 75 - posx, 4 * 75 - posy, -1
+        # # 2dec
+        # if X2 * 75 <= posx <= (X2 + 1) * 75 and Y2 * 75 <= posy <= (Y2 + 2) * 75:
+        #     Ship(2, X2 * 75, Y2 * 75, 'vertical')
+        #     return True, X2 * 75 - posx, Y2 * 75 - posy, -1
+        for i in range(4):
+            if XS[i] * 75 <= posx <= (XS[i] + 1) * 75 and YS[i] * 75 <= posy <= (YS[i] + i + 1) * 75:
+                Ship(i + 1, XS[i] * 75, YS[i] * 75, 'vertical')
+                return True, XS[i] * 75 - posx, YS[i] * 75 - posy, -1
         # add horizontal
         for i, ship in enumerate(ships):
             if ship.rect.x <= posx <= ship.rect.x + 75 and ship.rect.y <= posy <= ship.rect.y + 75 * ship.decknum:

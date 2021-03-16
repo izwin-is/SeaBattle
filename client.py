@@ -31,7 +31,6 @@ def main():
             if not isdead:
                 field.screen.blit(ship.image, (ship.rect.x, ship.rect.y))
         except: pass
-        print(len(ships))
         clock.tick(30)
         pg.display.flip()
 
