@@ -1,24 +1,39 @@
 from game_engine import *
 import socket_communication as sc
 import pygame as pg
-SCREEN_HEIGHT, SCREEN_WIDTH = 900, 1260
+SCREEN_HEIGHT, SCREEN_WIDTH = 750, 1875
 
 def main():
     field = GameField(SCREEN_HEIGHT, SCREEN_WIDTH)
-    field.draw_net()
-    field.draw_ships()
+    field.draw_static()
 
     stage = 0
+    clock = pg.time.Clock()
 
+    isshipmoving = False
     while stage == 0:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 quit()
-            if event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    field.change_ships(event.pos)
-                    print(event.pos)
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                isshipmoving, relx, rely, ship_num = field.change_ships(event.pos)
+            if event.type == pg.MOUSEBUTTONUP and event.button == 1 and isshipmoving:
+                isshipmoving = False
+                isdead = field.place_ship(ship_num)
+        if isshipmoving:
+            ship = list(ships)[ship_num]
+            ship.update(pg.mouse.get_pos(), relx, rely, field.screen)
+
+        field.draw_static()
+        ships.draw(field.screen)
+        try:
+            if not isdead:
+                field.screen.blit(ship.image, (ship.rect.x, ship.rect.y))
+        except: pass
+        print(len(ships))
+        clock.tick(30)
+        pg.display.flip()
 
 
 
