@@ -21,6 +21,8 @@ def main():
             if event.type == pg.MOUSEBUTTONUP and event.button == 1 and isshipmoving:
                 isshipmoving = False
                 isdead = field.place_ship(ship_num)
+                if isdead:
+                    ship_quant[ship.decknum - 1] += 1
         if isshipmoving:
             ship = list(ships)[ship_num]
             ship.update(pg.mouse.get_pos(), relx, rely, field.screen)
@@ -33,6 +35,7 @@ def main():
         except: pass
         clock.tick(30)
         pg.display.flip()
+        print(ship_quant)
 
 
 

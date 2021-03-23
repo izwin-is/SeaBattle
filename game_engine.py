@@ -4,6 +4,7 @@ from forimport import *
 pg.init()
 ships = pg.sprite.Group()
 ship_map = np.array([[0] * 12 for _ in range(12)])
+ship_quant = [4, 3, 2, 1]
 
 X1, Y1 = 11, 2
 X2, Y2 = 13, 6
@@ -14,7 +15,9 @@ YS = (Y1, Y2, Y3, Y4)
 
 
 def check_collisions(deck_num, orient, realx, realy):
-    global ship_map
+    global ship_map, ship_quant
+    if ship_quant[deck_num - 1] < 0:
+        return False
     if orient == 'vertical':
         submat = ship_map[realy - 1:realy + deck_num + 1, realx - 1:realx + 2]
         if np.sum(submat) == 0:
@@ -70,12 +73,9 @@ class GameField:
 
     def change_ships(self, pos):
         posx, posy = pos
-        # # 2dec
-        # if X2 * 75 <= posx <= (X2 + 1) * 75 and Y2 * 75 <= posy <= (Y2 + 2) * 75:
-        #     Ship(2, X2 * 75, Y2 * 75, 'vertical')
-        #     return True, X2 * 75 - posx, Y2 * 75 - posy, -1
         for i in range(4):
             if XS[i] * 75 <= posx <= (XS[i] + 1) * 75 and YS[i] * 75 <= posy <= (YS[i] + i + 1) * 75:
+                ship_quant[i] -= 1
                 Ship(i + 1, XS[i] * 75, YS[i] * 75, 'vertical')
                 return True, XS[i] * 75 - posx, YS[i] * 75 - posy, -1
         # add horizontal
@@ -93,13 +93,12 @@ class GameField:
         if realx < 0 or realx > 9 or realy < 0 or realy > 9:
             ship.kill()
             return True
-        if ship.decknum == 2:
-            if check_collisions(2, ship.orientation, realx + 1, realy + 1):
-                ship.rect.x = 75 * realx
-                ship.rect.y = 75 * realy
-            else:
-                ship.kill()
-                return True
+        if check_collisions(ship.decknum, ship.orientation, realx + 1, realy + 1):
+            ship.rect.x = 75 * realx
+            ship.rect.y = 75 * realy
+        else:
+            ship.kill()
+            return True
         return False
 
 
