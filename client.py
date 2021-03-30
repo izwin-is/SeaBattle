@@ -35,7 +35,6 @@ def main():
         except: pass
         clock.tick(30)
         pg.display.flip()
-        print(ship_quant)
 
 
 
