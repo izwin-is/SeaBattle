@@ -21,18 +21,24 @@ def check_collisions(deck_num, orient, realx, realy):
     if orient == 'vertical':
         submat = ship_map[realy - 1:realy + deck_num + 1, realx - 1:realx + 2]
         if np.sum(submat) == 0:
-            ship_map[realy:realy + deck_num, realx] = np.ones((deck_num, 1)).ravel()
+            ship_map[realy:realy + deck_num, realx] = np.ones((1, deck_num))
+            return True
+    else:
+        submat = ship_map[realy - 1:realy + 2, realx - 1:realx + deck_num + 1]
+        if np.sum(submat) == 0:
+            ship_map[realy, realx:realx + deck_num] = np.ones((1, deck_num))
             return True
         return False
 
 def correct_field(x, y, deck_num, orientation):
     # add horizontal
     global ship_map
-    print('========')
     realx = 1 + x // 75
     realy = 1 + y // 75
     if orientation == 'vertical':
-        ship_map[realy:realy + deck_num, realx] = np.zeros((deck_num, 1)).ravel()
+        ship_map[realy:realy + deck_num, realx] = np.zeros((1, deck_num))
+    else:
+        ship_map[realy, realx:realx + deck_num] = np.zeros((1, deck_num))
 
 
 
@@ -40,7 +46,11 @@ class Ship(pg.sprite.Sprite):
     def __init__(self, decknum, x, y, orientation):
         super().__init__(ships)
         self.decknum = decknum
-        self.image = deckimages[decknum - 1]
+        if orientation == 'vertical':
+            self.image = deckimages[decknum - 1]
+        else:
+            self.image = deckhimages[decknum - 1]
+
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -70,17 +80,18 @@ class GameField:
         self.screen.blit(deckimages[3], (X4 * 75, Y4 * 75))
         # pg.display.flip()
 
-
-    def change_ships(self, pos):
+    def change_ships(self, pos, button):
         posx, posy = pos
+        if button == 1: orientation = 'vertical'
+        else: orientation = 'horizontal'
         for i in range(4):
             if XS[i] * 75 <= posx <= (XS[i] + 1) * 75 and YS[i] * 75 <= posy <= (YS[i] + i + 1) * 75:
                 ship_quant[i] -= 1
-                Ship(i + 1, XS[i] * 75, YS[i] * 75, 'vertical')
+                Ship(i + 1, XS[i] * 75, YS[i] * 75, orientation)
                 return True, XS[i] * 75 - posx, YS[i] * 75 - posy, -1
         # add horizontal
         for i, ship in enumerate(ships):
-            if ship.rect.x <= posx <= ship.rect.x + 75 and ship.rect.y <= posy <= ship.rect.y + 75 * ship.decknum:
+            if ship.rect.collidepoint(pos):
                 correct_field(ship.rect.x, ship.rect.y, ship.decknum, ship.orientation)
 
                 return True, ship.rect.x - posx, ship.rect.y - posy, i
@@ -90,9 +101,15 @@ class GameField:
         ship = list(ships)[ship_num]
         realx = round(ship.rect.x / 75)
         realy = round(ship.rect.y / 75)
-        if realx < 0 or realx > 9 or realy < 0 or realy > 9:
-            ship.kill()
-            return True
+
+        if ship.orientation == 'vertical':
+            if realx < 0 or realx > 9 or realy < 0 or realy + ship.decknum - 1 > 9:
+                ship.kill()
+                return True
+        else:
+            if realx < 0 or realx + ship.decknum - 1 > 9 or realy < 0 or realy > 9:
+                ship.kill()
+                return True
         if check_collisions(ship.decknum, ship.orientation, realx + 1, realy + 1):
             ship.rect.x = 75 * realx
             ship.rect.y = 75 * realy

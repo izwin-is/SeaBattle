@@ -16,9 +16,9 @@ def main():
             if event.type == pg.QUIT:
                 pg.quit()
                 quit()
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                isshipmoving, relx, rely, ship_num = field.change_ships(event.pos)
-            if event.type == pg.MOUSEBUTTONUP and event.button == 1 and isshipmoving:
+            if event.type == pg.MOUSEBUTTONDOWN and (event.button == 1 or event.button == 3):
+                isshipmoving, relx, rely, ship_num = field.change_ships(event.pos, event.button)
+            if event.type == pg.MOUSEBUTTONUP and (event.button == 1 or event.button == 3) and isshipmoving:
                 isshipmoving = False
                 isdead = field.place_ship(ship_num)
                 if isdead:
