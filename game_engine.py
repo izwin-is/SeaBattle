@@ -6,6 +6,8 @@ ships = pg.sprite.Group()
 ship_map = np.array([[0] * 12 for _ in range(12)])
 ship_quant = [4, 3, 2, 1]
 
+SCREEN_HEIGHT, SCREEN_WIDTH = 750, 1875
+
 X1, Y1 = 11, 2
 X2, Y2 = 13, 6
 X3, Y3 = 13, 2
@@ -30,6 +32,7 @@ def check_collisions(deck_num, orient, realx, realy):
             return True
         return False
 
+
 def correct_field(x, y, deck_num, orientation):
     # add horizontal
     global ship_map
@@ -39,6 +42,17 @@ def correct_field(x, y, deck_num, orientation):
         ship_map[realy:realy + deck_num, realx] = np.zeros((1, deck_num))
     else:
         ship_map[realy, realx:realx + deck_num] = np.zeros((1, deck_num))
+
+
+def print_text(screen, message, x=0, y=0, font_color=(0, 0, 0), font_size=35, delta=0):
+    font_type = pg.font.Font('Other\\Unicephalon.ttf', font_size)
+    text = font_type.render(message, True, font_color)
+    xn, yn = text.get_size()
+    if x == 0:
+        x = (SCREEN_WIDTH - xn) // 2
+    if y == 0:
+        (SCREEN_HEIGHT - yn) // 2 + delta
+    screen.blit(text, (x, y))
 
 
 
@@ -142,3 +156,50 @@ class GameField:
         self.screen.fill((0, 60, 180))
         self.draw_net()
         self.draw_static_ships()
+
+
+class Button:
+    # Отступы от текста до начала рамки, ширина самой рамки
+    # sound = button_sound
+    d = 0
+    r = 2
+    def __init__(self, screen, message, go_stage, x=0, y=0, font_size=65, font_color=(0, 0, 0), delta=0, longer=0):
+        self.text_image = pg.font.Font('Other\\Unicephalon.ttf', font_size).render(message, True, font_color)
+        self.width, self.height = self.text_image.get_size()
+        self.width += 2 * (self.d + self.r + longer) # Ширина и длина кнопки
+        self.height += 2 * (self.d + self.r)
+        if x == 0:
+            x = (SCREEN_WIDTH - self.width) // 2
+        if y == 0:
+            y = (SCREEN_HEIGHT - self.height) // 2 + delta
+        self.x = (x, x + self.d + self.r + longer) # Координаты кнопки, самого текста
+        self.y = (y, y + self.d + self.r)
+        self.go_stage = go_stage
+        self.font_size = font_size
+        self.font_color = font_color
+        self.ismouse = False
+        self.screen = screen
+
+
+    def update_draw(self):
+        cur_x, cur_y = pg.mouse.get_pos()
+        if 0 < cur_y - self.y[0] < self.height and 0 < cur_x - self.x[0] < self.width:
+            pg.draw.rect(self.screen, (120, 120, 120), (self.x[0], self.y[0], self.width, self.height))
+            # if not self.ismouse:
+            #     self.sound.play()
+            self.ismouse = True
+        else:
+            pg.draw.rect(self.screen, (180, 180, 180), (self.x[0],  self.y[0], self.width, self.height))
+            self.ismouse = False
+        pg.draw.rect(self.screen, (0, 0, 0), (self.x[0], self.y[0], self.width, self.height), self.r)
+        self.screen.blit(self.text_image, (self.x[1], self.y[1] + self.height * 0.1))
+
+    def check(self, button_code, stage):
+
+        if self.ismouse and button_code == 1:
+            return self.go_stage
+        else:
+            return stage
+
+
+
