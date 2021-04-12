@@ -82,14 +82,20 @@ class GameField:
 
     def change_ships(self, pos, button):
         posx, posy = pos
-        if button == 1: orientation = 'vertical'
-        else: orientation = 'horizontal'
+        if button == 1:
+            orientation = 'vertical'
+        else:
+            orientation = 'horizontal'
         for i in range(4):
             if XS[i] * 75 <= posx <= (XS[i] + 1) * 75 and YS[i] * 75 <= posy <= (YS[i] + i + 1) * 75:
                 ship_quant[i] -= 1
-                Ship(i + 1, XS[i] * 75, YS[i] * 75, orientation)
-                return True, XS[i] * 75 - posx, YS[i] * 75 - posy, -1
-        # add horizontal
+                if orientation == 'vertical': addy = 0
+                else: addy = round((posy // 75 - YS[i]) * 75) #корректировка координат для горизонтальных кораблей
+                print(addy)
+
+                Ship(i + 1, XS[i] * 75, YS[i] * 75 + addy, orientation)
+                return True, XS[i] * 75 - posx, YS[i] * 75 - posy + addy, -1
+
         for i, ship in enumerate(ships):
             if ship.rect.collidepoint(pos):
                 correct_field(ship.rect.x, ship.rect.y, ship.decknum, ship.orientation)
@@ -120,8 +126,6 @@ class GameField:
 
 
 
-
-
     def draw_net(self):
         tile_size = self.h // 10
         for i in np.arange(11):
@@ -138,10 +142,3 @@ class GameField:
         self.screen.fill((0, 60, 180))
         self.draw_net()
         self.draw_static_ships()
-
-
-
-
-
-
-
