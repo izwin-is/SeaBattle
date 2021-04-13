@@ -63,7 +63,9 @@ def main():
             host = tinput.get_text()
             print_text(field.screen, "Waiting for the opponent...", 0, 600, font_size=65)
             fromfile = False
-            # sc.match()
+            name = 'art'
+            sc.match(host, name)
+            stage = 6
 
         take_file_button.update_draw()
         if fromfile:
@@ -77,7 +79,7 @@ def main():
             stage = 1
             fromfile = True
             with open('Other\\host.txt', 'r') as file:
-                host = file.readline()[:-1]
+                host = file.readline()
             if host == '':
                 isempty = True
             else:
