@@ -63,9 +63,7 @@ def main():
             host = tinput.get_text()
             print_text(field.screen, "Waiting for the opponent...", 0, 600, font_size=65)
             fromfile = False
-            name = 'art'
-            sc.match(host, name)
-            stage = 6
+            # sc.match()
 
         take_file_button.update_draw()
         if fromfile:
