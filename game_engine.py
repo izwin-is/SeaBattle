@@ -55,6 +55,25 @@ def print_text(screen, message, x=0, y=0, font_color=(0, 0, 0), font_size=35, de
     screen.blit(text, (x, y))
 
 
+def draw_inputs(screen):
+    print_text(screen, "please enter your...", 0, 60, font_size=85)
+
+    print_text(screen, "name", 413, 205, font_size=65)
+    pg.draw.rect(screen, (0, 0, 0), (660, 194, 807, 75))
+    pg.draw.rect(screen, (255, 255, 255), (666, 200, 795, 63))
+
+    print_text(screen, "host", 413, 305, font_size=65)
+    pg.draw.rect(screen, (0, 0, 0), (660, 294, 807, 75))
+    pg.draw.rect(screen, (255, 255, 255), (666, 300, 795, 63))
+
+
+def write_to_files(nick, host):
+    with open('D:\\PycharmProjects\\SeaBattle\\Other\\nick.txt', 'w') as f:
+        print(nick, file=f)
+    with open('D:\\PycharmProjects\\SeaBattle\\Other\\host.txt', 'w') as f:
+        print(host, file=f)
+
+
 
 class Ship(pg.sprite.Sprite):
     def __init__(self, decknum, x, y, orientation):
