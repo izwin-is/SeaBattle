@@ -2,7 +2,7 @@ from game_engine import *
 import socket_communication as sc
 import pygame as pg
 import pg_textinput as pt
-from threading import Thread
+from threading import Thread, Event
 
 
 def main():
@@ -10,15 +10,15 @@ def main():
 
 
     # Создание кнопок
-    approve_button = Button(field.screen, 'approve', 2, 0, 40, 65, (0, 0, 0), 0, 0)
-    start_game_button = Button(field.screen, 'start the game', 1, 0, 70)
+    approve_button = Button(field.screen, 'approve', 5, 0, 40, 65, (0, 0, 0), 0, 0)
+    start_game_button = Button(field.screen, 'start the game', 6, 0, 70)
     enter_ip_button = Button(field.screen, 'connect by id', 1, 0, 170)
     take_file_button = Button(field.screen, 'Take it from the file', 3, 0, 420)
     menu_button = Button(field.screen, 'menu', 0, 30, 30, font_size=35)
     reenter_button = Button(field.screen, 'reenter nick and host', 4, 0, 520)
 
 
-    stage = 1
+    stage = 0
     clock = pg.time.Clock()
     tinput1 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=10)
     tinput2 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=15)
@@ -49,6 +49,8 @@ def main():
             enterinput *= 1
         except:
             enterinput = 0
+        accept_result = 2
+        isthread = True
         while stage == 1:
             events = pg.event.get()
             for event in events:
@@ -87,11 +89,28 @@ def main():
             if enterinput > 1:
                 print_text(field.screen, nick, 668, 202, font_size=75)
                 print_text(field.screen, host, 668, 302, font_size=75)
-                print_text(field.screen, "Waiting for the opponent...", 0, 620, font_size=65)
+                if accept_result == 2:
+                    print_text(field.screen, "Waiting for the opponent...", 0, 620, font_size=65)
+                elif accept_result:
+                    print_text(field.screen, "success connection to server", 0, 620, font_size=65)
+                else:
+                    print_text(field.screen, "retry to connect", 0, 620, font_size=65)
                 write_to_files(nick, host)
 
-                # sc.match(host, nick)
-                # stage = 6
+                if isthread:
+                    isthread = False
+                    threadevent = Event()
+                    threadevent.clear()
+                    ans = [None, None]
+                    thread = Thread(target=sc.match, args=(host, nick, threadevent, ans))
+                    thread.start()
+                if not isthread:
+                    if threadevent.is_set():
+                        thread.join()
+                        accept_result = ans[0]
+                        if accept_result:
+                            stage = 6
+
 
             if stage == 3:
                 stage = 1
@@ -117,6 +136,7 @@ def main():
             reenter_button.update_draw()
             pg.display.flip()
             clock.tick(30)
+
 
         if stage == 4:
             stage = 1
@@ -151,6 +171,13 @@ def main():
             ships.draw(field.screen)
 
             approve_button.update_draw()
+            try:
+                print_text(field.screen, f'enemy: {ans[1]}', 0, 680, font_size=25)
+            except: pass
+            try:
+                if add_ships_message:
+                    print_text(field.screen, 'add ships', 0, 630, font_size=30, font_color=(255, 0, 0))
+            except: pass
 
             try:
                 if not isdead:
@@ -159,7 +186,45 @@ def main():
             pg.display.flip()
             clock.tick(30)
 
+        # Бой
+        if stage == 5:
+            if sum(ship_quant):
+                stage = 6
+                add_ships_message = True
+            else:
+                # ship_map.transpose()
+                add_ships_message = False
+                threadevent = Event()
+                threadevent.clear()
+                ans = [False, None, None] #Наносит удар (False-нет, True-да, 2 - ждёт ответ ), координаты удара, результат удара
+                thread = Thread(target=sc.start, args=(ans, threadevent))
+                thread.start()
 
+        while stage == 5:
+            # print('ans ', ans)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    threadevent.set()
+                    del thread
+                    quit()
+                if event.type == pg.MOUSEBUTTONDOWN and ans[0] == 1:
+                    ans[1] = check_bomb_position(event.pos)
+                    if ans[1] is not None:
+                        ans[0] = 2
+
+
+
+            field.draw_static(0)
+            if ans[2] is not None:
+                animate(ans, field.screen)
+                ans[2] = None
+            if ans[0]:
+                print_text(field.screen, 'ur turn', 0, 630, font_size=30, font_color=(255, 0, 0))
+            ships.draw(field.screen)
+            draw_marks(field.screen)
+            pg.display.flip()
+            clock.tick(30)
 
 
 

@@ -3,8 +3,11 @@ from forimport import *
 
 pg.init()
 ships = pg.sprite.Group()
+# marks = pg.sprite.Group()
+marks = []
 ship_map = np.array([[0] * 12 for _ in range(12)])
-ship_quant = [4, 3, 2, 1]
+ship_quant = [1, 0, 0, 0]
+
 
 SCREEN_HEIGHT, SCREEN_WIDTH = 750, 1875
 
@@ -75,6 +78,78 @@ def write_to_files(nick, host):
 
 
 
+def check_bomb_position(pos):
+    x, y = pos
+    x //= 75
+    y //= 75
+    if 15 <= x <= 24:
+        return [x - 14, y + 1]
+    else:
+        return None
+
+
+
+def animate(ans, screen):
+    status, coords, bomb_result = ans
+    x, y = coords
+    # marks.append([])
+    if bomb_result:
+        color = 255
+    else:
+        color = 0
+    if status:
+        marks.append([((x - 1) * 75 + 38, (y - 1) * 75 + 38), color])
+    else:
+        marks.append([((x - 1) * 75 + 38 + 15 * 75, (y - 1) * 75 + 38), color])
+
+
+
+def draw_marks(screen):
+    for mark in marks:
+        pg.draw.circle(screen, (mark[1], 0, 0), mark[0], 20)
+
+
+
+def isdead(x, y):
+    mas = [[x, y, ship_map[x, y]]]
+    for i in range(1, 4):
+        if 1 <= x + i <= 10 and (ship_map[x + i, y] == 1 or ship_map[x + i, y] == 3):
+            mas.append([x + i, y, ship_map[x + i, y]])
+        if 1 <= x - i <= 10 and (ship_map[x - i, y] == 1 or ship_map[x - i, y] == 3):
+            mas.append([x - i, y, ship_map[x - i, y]])
+        if 1 <= y + i <= 10 and (ship_map[x, y + i] == 1 or ship_map[x, y + i] == 3):
+            mas.append([x, y + i, ship_map[x, y + i]])
+        if 1 <= y - i <= 10 and (ship_map[x, y - i] == 1 or ship_map[x, y - i] == 3):
+            mas.append([x, y - i, ship_map[x, y - i]])
+    return mas
+
+
+def check_hit(coords):
+    #return 0 - не попал
+    #       1 - попал но не убил
+    #       2 - убил
+
+    # поле
+    # 0 - не стреляли нет корабля
+    # 1 - не стреляли есть корабль
+    # 2 - стреляли нет корабля
+    # 3 - стреляли есть корабль
+
+    y, x = coords
+    if ship_map[x, y] == 0:
+        ship_map[x, y] = 2
+        return 0
+    else:
+        if ship_map[x, y] == 1:
+            ship_map[x, y] = 3
+        dethmas = isdead(x, y)
+        for i in dethmas:
+            if i[2] == 1:
+                return 1
+        return 2
+
+
+
 class Ship(pg.sprite.Sprite):
     def __init__(self, decknum, x, y, orientation):
         super().__init__(ships)
@@ -124,7 +199,6 @@ class GameField:
                 ship_quant[i] -= 1
                 if orientation == 'vertical': addy = 0
                 else: addy = round((posy // 75 - YS[i]) * 75) #корректировка координат для горизонтальных кораблей
-                print(addy)
 
                 Ship(i + 1, XS[i] * 75, YS[i] * 75 + addy, orientation)
                 return True, XS[i] * 75 - posx, YS[i] * 75 - posy + addy, -1
@@ -171,10 +245,11 @@ class GameField:
             pg.draw.line(self.screen, (0, 0, 0), (1125 + 0, i * tile_size + 1), (1125 + self.h, i * tile_size + 1), 3)
         # pg.display.flip()
 
-    def draw_static(self):
+    def draw_static(self, issipsdrawing=1):
         self.screen.fill((0, 60, 180))
         self.draw_net()
-        self.draw_static_ships()
+        if issipsdrawing:
+            self.draw_static_ships()
 
 
 class Button:
