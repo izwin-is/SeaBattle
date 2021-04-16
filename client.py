@@ -55,6 +55,9 @@ def main():
             events = pg.event.get()
             for event in events:
                 if event.type == pg.QUIT:
+                    try:
+                        del thread
+                    except: pass
                     pg.quit()
                     quit()
                 if event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
@@ -197,7 +200,7 @@ def main():
                 threadevent = Event()
                 threadevent.clear()
                 ans = [False, None, None] #Наносит удар (False-нет, True-да, 2 - ждёт ответ ), координаты удара, результат удара
-                thread = Thread(target=sc.start, args=(ans, threadevent))
+                thread = Thread(target=sc.start, args=(ans, threadevent, animate))
                 thread.start()
 
         while stage == 5:
@@ -216,9 +219,9 @@ def main():
 
 
             field.draw_static(0)
-            if ans[2] is not None:
-                animate(ans, field.screen)
-                ans[2] = None
+            # if ans[2] is not None:
+            #     animate(ans)
+            #     ans[2] = None
             if ans[0]:
                 print_text(field.screen, 'ur turn', 0, 630, font_size=30, font_color=(255, 0, 0))
             ships.draw(field.screen)

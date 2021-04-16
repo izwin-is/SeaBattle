@@ -6,7 +6,7 @@ ships = pg.sprite.Group()
 # marks = pg.sprite.Group()
 marks = []
 ship_map = np.array([[0] * 12 for _ in range(12)])
-ship_quant = [1, 0, 0, 0]
+ship_quant = [1, 1, 0, 0]
 
 
 SCREEN_HEIGHT, SCREEN_WIDTH = 750, 1875
@@ -89,18 +89,20 @@ def check_bomb_position(pos):
 
 
 
-def animate(ans, screen):
+def animate(ans):
     status, coords, bomb_result = ans
     x, y = coords
-    # marks.append([])
+
     if bomb_result:
-        color = 255
+        if status:
+            marks.append([((x - 1) * 75 + 38 + 15 * 75, (y - 1) * 75 + 38), 255])
+        else:
+            marks.append([((x - 1) * 75 + 38, (y - 1) * 75 + 38), 255])
     else:
-        color = 0
-    if status:
-        marks.append([((x - 1) * 75 + 38, (y - 1) * 75 + 38), color])
-    else:
-        marks.append([((x - 1) * 75 + 38 + 15 * 75, (y - 1) * 75 + 38), color])
+        if status:
+            marks.append([((x - 1) * 75 + 38, (y - 1) * 75 + 38), 0])
+        else:
+            marks.append([((x - 1) * 75 + 38 + 15 * 75, (y - 1) * 75 + 38), 0])
 
 
 
