@@ -6,7 +6,7 @@ ships = pg.sprite.Group()
 # marks = pg.sprite.Group()
 marks = []
 ship_map = np.array([[0] * 12 for _ in range(12)])
-ship_quant = [1, 1, 0, 0]
+ship_quant = [0, 1, 1, 0]
 myhits = []
 
 
@@ -172,17 +172,48 @@ def check_hit(coords):
 #
 #
 #
-def createframe(coords, status):
-    if not status:
-        mas = isdead(coords[1], coords[0])
-        if len(mas) == 1:
-            adds = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
-            x, y = mas[0][:2]
-            for i in adds:
-                animate([False, [x + i[0], y + i[1]], 0])
-                ship_map[x + i[0], y + i[1]] = 2
-        # else:
-        #     if
+
+def delextra(mas):
+    length = len(mas)
+    i = 0
+    while i < length:
+        if not (1 <= mas[i][0] <= 10 and 1 <= mas[i][1] <= 10):
+            del mas[i]
+            length -= 1
+        else:
+            i += 1
+
+
+def createframe(coords):
+    mas = isdead(coords[1], coords[0])
+    if len(mas) == 1:
+        adds = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
+        x, y = mas[0][:2]
+        for i in adds:
+            animate([False, [y + i[1], x + i[0]], 0])
+            ship_map[y + i[1], x + i[0]] = 2
+        tosend = [[y + i[1], x + i[0]] for i in adds]
+
+    else:
+        if mas[0][0] == mas[1][0]:
+            minimum = sorted(mas, key=lambda x: x[1])[0][1]
+            constx = mas[0][0]
+            length = len(mas)
+            tosend = [[minimum - 1, constx], [minimum + length, constx]]
+            for i in range(minimum - 1, minimum + length + 1):
+                tosend.append([i, constx - 1])
+                tosend.append([i, constx + 1])
+        else:
+            minimum = sorted(mas, key=lambda x: x[0])[0][0]
+            consty = mas[0][1]
+            length = len(mas)
+            tosend = [[consty, minimum - 1], [consty, minimum + length]]
+            for i in range(minimum - 1, minimum + length + 1):
+                tosend.append([consty - 1, i])
+                tosend.append([consty + 1, i])
+
+    delextra(tosend)
+    return tosend
 
 
 

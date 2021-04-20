@@ -3,6 +3,7 @@ from threading import Event
 from game_engine import check_hit, myhits, createframe
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 from time import sleep
+import pickle
 
 
 
@@ -52,7 +53,10 @@ def start(ans, threadevent, animate_function):
                 ans[0] = 0
             elif bomb_result == 2:
                 enemysdeadships += 1
-                createframe(coords, ans[0])
+                frame = pickle.loads(sock.recv(1024))
+                myhits.extend(frame)
+                for hit in frame:
+                    animate_function([1, hit, 0])
             else:
                 ans[0] = 1
                 ans[1] = None
@@ -66,14 +70,14 @@ def start(ans, threadevent, animate_function):
             coords = list(map(int, coords.decode('utf-8').split(' ')))
             # print('coords', coords)
             hit_result = check_hit(coords)
-            if hit_result == 2:
-                createframe(coords, ans[0])
-                pass
             ans[1] = coords
             print('hit_result', hit_result)
             ans[2] = hit_result
             animate_function(ans)
             sock.send(str(hit_result).encode('utf-8'))
+            if hit_result == 2:
+                frame = pickle.dumps(createframe(coords))
+                sock.send(frame)
             if not hit_result:
                 moving_player = another(moving_player)
                 ans[0] = 1
