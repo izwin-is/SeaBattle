@@ -7,6 +7,7 @@ ships = pg.sprite.Group()
 marks = []
 ship_map = np.array([[0] * 12 for _ in range(12)])
 ship_quant = [1, 1, 0, 0]
+myhits = []
 
 
 SCREEN_HEIGHT, SCREEN_WIDTH = 750, 1875
@@ -94,15 +95,13 @@ def animate(ans):
     x, y = coords
 
     if bomb_result:
-        if status:
-            marks.append([((x - 1) * 75 + 38 + 15 * 75, (y - 1) * 75 + 38), 255])
-        else:
-            marks.append([((x - 1) * 75 + 38, (y - 1) * 75 + 38), 255])
+        color = 255
     else:
-        if status:
-            marks.append([((x - 1) * 75 + 38, (y - 1) * 75 + 38), 0])
-        else:
-            marks.append([((x - 1) * 75 + 38 + 15 * 75, (y - 1) * 75 + 38), 0])
+        color = 0
+    if status:
+        marks.append([((x - 1) * 75 + 38 + 15 * 75, (y - 1) * 75 + 38), color])
+    else:
+        marks.append([((x - 1) * 75 + 38, (y - 1) * 75 + 38), color])
 
 
 
@@ -115,15 +114,23 @@ def draw_marks(screen):
 def isdead(x, y):
     mas = [[x, y, ship_map[x, y]]]
     for i in range(1, 4):
-        if 1 <= x + i <= 10 and (ship_map[x + i, y] == 1 or ship_map[x + i, y] == 3):
-            mas.append([x + i, y, ship_map[x + i, y]])
-        if 1 <= x - i <= 10 and (ship_map[x - i, y] == 1 or ship_map[x - i, y] == 3):
-            mas.append([x - i, y, ship_map[x - i, y]])
-        if 1 <= y + i <= 10 and (ship_map[x, y + i] == 1 or ship_map[x, y + i] == 3):
-            mas.append([x, y + i, ship_map[x, y + i]])
-        if 1 <= y - i <= 10 and (ship_map[x, y - i] == 1 or ship_map[x, y - i] == 3):
-            mas.append([x, y - i, ship_map[x, y - i]])
+        if (ship_map[x + i, y] == 0 or ship_map[x + i, y] == 0) or not (1 <= x + i <= 10):
+            break
+        mas.append([x + i, y, ship_map[x + i, y]])
+    for i in range(1, 4):
+        if (ship_map[x - i, y] == 0 or ship_map[x - i, y] == 0) or not (1 <= x - i <= 10):
+            break
+        mas.append([x - i, y, ship_map[x - i, y]])
+    for i in range(1, 4):
+        if (ship_map[x, y + i] == 0 or ship_map[x, y + i] == 0) or not (1 <= y + i <= 10):
+            break
+        mas.append([x, y + i, ship_map[x, y + 1]])
+    for i in range(1, 4):
+        if (ship_map[x, y - i] == 0 or ship_map[x, y - i] == 0) or not (1 <= y - i <= 10):
+            break
+        mas.append([x, y - i, ship_map[x, y - 1]])
     return mas
+
 
 
 def check_hit(coords):
@@ -148,7 +155,34 @@ def check_hit(coords):
         for i in dethmas:
             if i[2] == 1:
                 return 1
+
         return 2
+
+
+# def createpartframe(mas, status):
+#     adds = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
+#     x, y, _ = mas
+#     for i in adds:
+#         newx = x + i[0]
+#         newy = y + i[1]
+#         if 1 <= newx <= 10 and 1 <= newy <= 10:
+#             if status:
+#
+#             if ship_map[newx, newy] == 0:
+#
+#
+#
+def createframe(coords, status):
+    if not status:
+        mas = isdead(coords[1], coords[0])
+        if len(mas) == 1:
+            adds = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
+            x, y = mas[0][:2]
+            for i in adds:
+                animate([False, [x + i[0], y + i[1]], 0])
+                ship_map[x + i[0], y + i[1]] = 2
+        # else:
+        #     if
 
 
 

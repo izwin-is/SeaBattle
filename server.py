@@ -39,8 +39,8 @@ while True:
     clients[another(moving_player)].send(coords)
     bomb_result = clients[another(moving_player)].recv(1024)
     clients[moving_player].send(bomb_result)
-    # if not int(bomb_result):
-    moving_player = another(moving_player)
+    if not int(bomb_result):
+        moving_player = another(moving_player)
 
 
 

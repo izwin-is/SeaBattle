@@ -175,6 +175,7 @@ def main():
 
             approve_button.update_draw()
             try:
+                oppname = ans[1]
                 print_text(field.screen, f'enemy: {ans[1]}', 0, 680, font_size=25)
             except: pass
             try:
@@ -226,6 +227,11 @@ def main():
                 print_text(field.screen, 'ur turn', 0, 630, font_size=30, font_color=(255, 0, 0))
             ships.draw(field.screen)
             draw_marks(field.screen)
+            print_text(field.screen, f'enemy: {oppname}', 0, 680, font_size=25)
+            if ans[0] == 3:
+                print_text(field.screen, f'you win', 0, 100, font_size=40)
+            elif ans[0] == 4:
+                print_text(field.screen, f'you lose', 0, 100, font_size=40)
             pg.display.flip()
             clock.tick(30)
 
