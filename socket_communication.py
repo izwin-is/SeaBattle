@@ -1,10 +1,11 @@
 import socket
 from threading import Event
 from game_engine import check_hit, myhits, createframe
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 from time import sleep
 import pickle
 
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 def another(i):
@@ -26,7 +27,16 @@ def match(host, nick, threadevent, ans):
         return
 
 
-def start(ans, threadevent, animate_function):
+# def sayready(host):
+#     # sock.sendto(b'r', (host, 9999))
+#     pass
+
+def start(ans, threadevent, animate_function, readyness):
+    sock.send(b'r')
+    sock.recv(16)
+    readyness[0] = True
+
+
     moving_player = sock.recv(1024)
     ans[0] = bool(int(moving_player))
     moving_player = ans[0]

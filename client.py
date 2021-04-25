@@ -11,7 +11,8 @@ def main():
 
     # Создание кнопок
     approve_button = Button(field.screen, 'approve', 5, 0, 40, 65, (0, 0, 0), 0, 0)
-    start_game_button = Button(field.screen, 'start the game', 6, 0, 70)
+    # start_game_button = Button(field.screen, 'start the game', 6, 0, 70)
+    menu2_button = Button(field.screen, 'menu', 0, 0, 350, font_size=60)
     enter_ip_button = Button(field.screen, 'connect by id', 1, 0, 170)
     take_file_button = Button(field.screen, 'Take it from the file', 3, 0, 420)
     menu_button = Button(field.screen, 'menu', 0, 30, 30, font_size=35)
@@ -20,11 +21,14 @@ def main():
 
     stage = 0
     clock = pg.time.Clock()
-    tinput1 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=10)
-    tinput2 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=15)
+    fps = 60
+    # tinput1 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=10)
+    # tinput2 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=15)
 
     while True:
 
+        tinput1 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=10)
+        tinput2 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=15)
         isshipmoving = False
         # Меню
         field.screen.fill((255, 249, 70))
@@ -34,13 +38,12 @@ def main():
                     pg.quit()
                     quit()
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    stage = start_game_button.check(event.button, stage)
                     stage = enter_ip_button.check(event.button, stage)
 
-            start_game_button.update_draw()
+
             enter_ip_button.update_draw()
 
-            clock.tick(30)
+            clock.tick(fps)
             pg.display.flip()
 
 
@@ -138,7 +141,7 @@ def main():
             take_file_button.update_draw()
             reenter_button.update_draw()
             pg.display.flip()
-            clock.tick(30)
+            clock.tick(fps)
 
 
         if stage == 4:
@@ -190,7 +193,7 @@ def main():
                     field.screen.blit(ship.image, (ship.rect.x, ship.rect.y))
             except: pass
             pg.display.flip()
-            clock.tick(30)
+            clock.tick(fps)
 
         # Бой
         if stage == 5:
@@ -203,7 +206,8 @@ def main():
                 threadevent = Event()
                 threadevent.clear()
                 ans = [False, None, None] #Наносит удар (False-нет, True-да, 2 - ждёт ответ ), координаты удара, результат удара
-                thread = Thread(target=sc.start, args=(ans, threadevent, animate))
+                readyness = [False]
+                thread = Thread(target=sc.start, args=(ans, threadevent, animate, readyness))
                 thread.start()
 
                 for i in ships:
@@ -221,6 +225,8 @@ def main():
                     ans[1] = check_bomb_position(event.pos)
                     if ans[1] is not None:
                         ans[0] = 2
+                if ans[0] > 2 and event.type == pg.MOUSEBUTTONDOWN:
+                    stage = menu2_button.check(event.button, stage)
 
 
 
@@ -228,8 +234,12 @@ def main():
             # if ans[2] is not None:
             #     animate(ans)
             #     ans[2] = None
-            if ans[0]:
+            if ans[0] and readyness[0]:
                 print_text(field.screen, 'ur turn', 0, 630, font_size=30, font_color=(255, 0, 0))
+            elif not ans[0] and readyness[0]:
+                print_text(field.screen, f"{oppname}'s turn", 0, 630, font_size=30, font_color=(0, 0, 0))
+            elif not readyness[0]:
+                print_text(field.screen, 'waiting for opponent', 0, 630, font_size=25, font_color=(0, 0, 0))
             ships.draw(field.screen)
             draw_marks(field.screen)
             print_text(field.screen, f'enemy: {oppname}', 0, 680, font_size=25)
@@ -237,8 +247,10 @@ def main():
                 print_text(field.screen, f'you win', 0, 100, font_size=40)
             elif ans[0] == 4:
                 print_text(field.screen, f'you lose', 0, 100, font_size=40)
+            if ans[0] > 2:
+                menu2_button.update_draw()
             pg.display.flip()
-            clock.tick(30)
+            clock.tick(fps)
 
 
 

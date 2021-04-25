@@ -1,8 +1,12 @@
 import socket
 from random import randint
+from threading import Thread
 
 def another(i):
     return int(not i)
+
+def waitreadyness(s, n):
+    s[n].recv(16)
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,8 +32,18 @@ except:
     exit()
     pass
 
+# Понять, что корабли расставлены
+
+thread = Thread(target=waitreadyness, args=(clients, 0))
+thread.start()
+waitreadyness(clients, 1)
+thread.join()
+clients[0].send(b'0')
+clients[1].send(b'0')
+
+
 # Игра
-# moving_player = randint(0, 1)
+moving_player = randint(0, 1)
 moving_player = 0
 clients[moving_player].send(b'1')
 clients[another(moving_player)].send(b'0')
@@ -44,10 +58,6 @@ while True:
         clients[moving_player].send(frame)
     if not int(bomb_result):
         moving_player = another(moving_player)
-
-
-
-
 
 
 
