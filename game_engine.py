@@ -6,7 +6,7 @@ ships = pg.sprite.Group()
 # marks = pg.sprite.Group()
 marks = []
 ship_map = np.array([[0] * 12 for _ in range(12)])
-ship_quant = [0, 1, 1, 0]
+ship_quant = [4, 3, 2, 1]
 myhits = []
 
 
@@ -111,22 +111,22 @@ def draw_marks(screen):
 
 
 
-def isdead(x, y):
+def isdeadf(x, y):
     mas = [[x, y, ship_map[x, y]]]
     for i in range(1, 4):
-        if (ship_map[x + i, y] == 0 or ship_map[x + i, y] == 0) or not (1 <= x + i <= 10):
+        if (ship_map[x + i, y] == 0 or ship_map[x + i, y] == 2) or not (1 <= x + i <= 10):
             break
         mas.append([x + i, y, ship_map[x + i, y]])
     for i in range(1, 4):
-        if (ship_map[x - i, y] == 0 or ship_map[x - i, y] == 0) or not (1 <= x - i <= 10):
+        if (ship_map[x - i, y] == 0 or ship_map[x - i, y] == 2) or not (1 <= x - i <= 10):
             break
         mas.append([x - i, y, ship_map[x - i, y]])
     for i in range(1, 4):
-        if (ship_map[x, y + i] == 0 or ship_map[x, y + i] == 0) or not (1 <= y + i <= 10):
+        if (ship_map[x, y + i] == 0 or ship_map[x, y + i] == 2) or not (1 <= y + i <= 10):
             break
         mas.append([x, y + i, ship_map[x, y + 1]])
     for i in range(1, 4):
-        if (ship_map[x, y - i] == 0 or ship_map[x, y - i] == 0) or not (1 <= y - i <= 10):
+        if (ship_map[x, y - i] == 0 or ship_map[x, y - i] == 2) or not (1 <= y - i <= 10):
             break
         mas.append([x, y - i, ship_map[x, y - 1]])
     return mas
@@ -151,7 +151,7 @@ def check_hit(coords):
     else:
         if ship_map[x, y] == 1:
             ship_map[x, y] = 3
-        dethmas = isdead(x, y)
+        dethmas = isdeadf(x, y)
         for i in dethmas:
             if i[2] == 1:
                 return 1
@@ -185,7 +185,7 @@ def delextra(mas):
 
 
 def createframe(coords):
-    mas = isdead(coords[1], coords[0])
+    mas = isdeadf(coords[1], coords[0])
     if len(mas) == 1:
         adds = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
         x, y = mas[0][:2]
@@ -213,6 +213,10 @@ def createframe(coords):
                 tosend.append([consty + 1, i])
 
     delextra(tosend)
+    for i in tosend:
+        animate([False, i, 0])
+        ship_map[i[0], i[1]] = 2
+
     return tosend
 
 

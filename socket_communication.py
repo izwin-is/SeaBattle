@@ -61,7 +61,7 @@ def start(ans, threadevent, animate_function):
                 ans[0] = 1
                 ans[1] = None
                 ans[2] = None
-            if enemysdeadships == 2:
+            if enemysdeadships == 10:
                 print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeend')
                 ans[0] = 3 #win
                 return
@@ -83,7 +83,7 @@ def start(ans, threadevent, animate_function):
                 ans[0] = 1
             elif hit_result == 2:
                 mysdeadships += 1
-            if mysdeadships == 2:
+            if mysdeadships == 10:
                 ans[0] = 4 # lose
                 print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeend')
                 return
