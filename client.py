@@ -156,6 +156,7 @@ def main():
                     pg.quit()
                     quit()
                 if event.type == pg.MOUSEBUTTONDOWN and (event.button == 1 or event.button == 3):
+                    print(ship_quant, ' client no change')
                     isshipmoving, relx, rely, ship_num = field.change_ships(event.pos, event.button)
                     stage = approve_button.check(event.button, stage)
 
@@ -164,6 +165,7 @@ def main():
                     isdead = field.place_ship(ship_num)
                     if isdead:
                         ship_quant[ship.decknum - 1] += 1
+                        print(ship_quant, ' client')
 
             # Обновления объектов
             if isshipmoving:
@@ -203,6 +205,9 @@ def main():
                 ans = [False, None, None] #Наносит удар (False-нет, True-да, 2 - ждёт ответ ), координаты удара, результат удара
                 thread = Thread(target=sc.start, args=(ans, threadevent, animate))
                 thread.start()
+
+                for i in ships:
+                    print(i.cond, i.orientation)
 
         while stage == 5:
             # print('ans ', ans)

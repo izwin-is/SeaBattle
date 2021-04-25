@@ -234,10 +234,25 @@ class Ship(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.orientation = orientation
+        self.cond = [None] * decknum
+
+    def toplace(self, x, y):
+        if self.orientation == 'vertical':
+            self.adds = [0, 1]
+        else:
+            self.adds = [1, 0]
+        self.rect.x = 75 * x
+        self.rect.y = 75 * y
+        self.cond[0] = [x + 1, y + 1, 1]
+        for i in range(1, self.decknum):
+            self.cond[i] = [self.cond[i - 1][0] + self.adds[0], self.cond[i - 1][1] + self.adds[1], 1]
 
     def update(self, pos, relx, rely, scr):
         self.rect.x = pos[0] + relx
         self.rect.y = pos[1] + rely
+        # self.cond[0] = [self.rect.x // 75, self.rect.y // 75]
+        # for i in range(1, self.decknum):
+        #     self.cond[i] = [self.cond[0][0] + self.adds[0] * i, self.cond[0][1] + self.adds[1] * i]
         # self.draw(scr)
 
 
@@ -268,6 +283,7 @@ class GameField:
         for i in range(4):
             if XS[i] * 75 <= posx <= (XS[i] + 1) * 75 and YS[i] * 75 <= posy <= (YS[i] + i + 1) * 75:
                 ship_quant[i] -= 1
+                print(ship_quant, ' engine')
                 if orientation == 'vertical': addy = 0
                 else: addy = round((posy // 75 - YS[i]) * 75) #корректировка координат для горизонтальных кораблей
 
@@ -295,8 +311,9 @@ class GameField:
                 ship.kill()
                 return True
         if check_collisions(ship.decknum, ship.orientation, realx + 1, realy + 1):
-            ship.rect.x = 75 * realx
-            ship.rect.y = 75 * realy
+            # ship.rect.x = 75 * realx
+            # ship.rect.y = 75 * realy
+            ship.toplace(realx, realy)
         else:
             ship.kill()
             return True
