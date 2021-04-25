@@ -111,25 +111,25 @@ def draw_marks(screen):
 
 
 
-def isdeadf(x, y):
-    mas = [[x, y, ship_map[x, y]]]
-    for i in range(1, 4):
-        if (ship_map[x + i, y] == 0 or ship_map[x + i, y] == 2) or not (1 <= x + i <= 10):
-            break
-        mas.append([x + i, y, ship_map[x + i, y]])
-    for i in range(1, 4):
-        if (ship_map[x - i, y] == 0 or ship_map[x - i, y] == 2) or not (1 <= x - i <= 10):
-            break
-        mas.append([x - i, y, ship_map[x - i, y]])
-    for i in range(1, 4):
-        if (ship_map[x, y + i] == 0 or ship_map[x, y + i] == 2) or not (1 <= y + i <= 10):
-            break
-        mas.append([x, y + i, ship_map[x, y + 1]])
-    for i in range(1, 4):
-        if (ship_map[x, y - i] == 0 or ship_map[x, y - i] == 2) or not (1 <= y - i <= 10):
-            break
-        mas.append([x, y - i, ship_map[x, y - 1]])
-    return mas
+# def isdeadf(x, y):
+#     mas = [[x, y, ship_map[x, y]]]
+#     for i in range(1, 4):
+#         if (ship_map[x + i, y] == 0 or ship_map[x + i, y] == 2) or not (1 <= x + i <= 10):
+#             break
+#         mas.append([x + i, y, ship_map[x + i, y]])
+#     for i in range(1, 4):
+#         if (ship_map[x - i, y] == 0 or ship_map[x - i, y] == 2) or not (1 <= x - i <= 10):
+#             break
+#         mas.append([x - i, y, ship_map[x - i, y]])
+#     for i in range(1, 4):
+#         if (ship_map[x, y + i] == 0 or ship_map[x, y + i] == 2) or not (1 <= y + i <= 10):
+#             break
+#         mas.append([x, y + i, ship_map[x, y + 1]])
+#     for i in range(1, 4):
+#         if (ship_map[x, y - i] == 0 or ship_map[x, y - i] == 2) or not (1 <= y - i <= 10):
+#             break
+#         mas.append([x, y - i, ship_map[x, y - 1]])
+#     return mas
 
 
 
@@ -144,34 +144,21 @@ def check_hit(coords):
     # 2 - стреляли нет корабля
     # 3 - стреляли есть корабль
 
-    y, x = coords
-    if ship_map[x, y] == 0:
-        ship_map[x, y] = 2
-        return 0
-    else:
-        if ship_map[x, y] == 1:
-            ship_map[x, y] = 3
-        dethmas = isdeadf(x, y)
-        for i in dethmas:
-            if i[2] == 1:
-                return 1
-
-        return 2
+    x, y = coords
+    for ship in ships:
+        for condition in ship.cond:
+            if x == condition[0] and y == condition[1]:
+                condition[2] = 0
+                if ship.isshipdead():
+                    return 2
+                else:
+                    return 1
+    return 0
 
 
-# def createpartframe(mas, status):
-#     adds = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
-#     x, y, _ = mas
-#     for i in adds:
-#         newx = x + i[0]
-#         newy = y + i[1]
-#         if 1 <= newx <= 10 and 1 <= newy <= 10:
-#             if status:
-#
-#             if ship_map[newx, newy] == 0:
-#
-#
-#
+
+
+
 
 def delextra(mas):
     length = len(mas)
@@ -185,37 +172,40 @@ def delextra(mas):
 
 
 def createframe(coords):
-    mas = isdeadf(coords[1], coords[0])
-    if len(mas) == 1:
-        adds = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]
-        x, y = mas[0][:2]
-        for i in adds:
-            animate([False, [y + i[1], x + i[0]], 0])
-            ship_map[y + i[1], x + i[0]] = 2
-        tosend = [[y + i[1], x + i[0]] for i in adds]
+    x, y = coords
+    flag = False
+    for ship in ships:
+        for condition in ship.cond:
+            if x == condition[0] and y == condition[1]:
+                mas = ship.cond
+                orientation = ship.orientation
+                flag = True
+                break
+        if flag:
+            break
 
+    tosend = []
+    ln = len(mas)
+
+    x, y, _ = mas[0]
+    if orientation == 'vertical':
+        tosend.append([x, y - 1])
+        tosend.append([x, y + ln])
+        for i in range(y - 1, y + ln + 1):
+            tosend.append([x - 1, i])
+            tosend.append([x + 1, i])
     else:
-        if mas[0][0] == mas[1][0]:
-            minimum = sorted(mas, key=lambda x: x[1])[0][1]
-            constx = mas[0][0]
-            length = len(mas)
-            tosend = [[minimum - 1, constx], [minimum + length, constx]]
-            for i in range(minimum - 1, minimum + length + 1):
-                tosend.append([i, constx - 1])
-                tosend.append([i, constx + 1])
-        else:
-            minimum = sorted(mas, key=lambda x: x[0])[0][0]
-            consty = mas[0][1]
-            length = len(mas)
-            tosend = [[consty, minimum - 1], [consty, minimum + length]]
-            for i in range(minimum - 1, minimum + length + 1):
-                tosend.append([consty - 1, i])
-                tosend.append([consty + 1, i])
+        tosend.append([x - 1, y])
+        tosend.append([x + ln, y])
+        for i in range(x - 1, x + ln + 1):
+            tosend.append([i, y - 1])
+            tosend.append([i, y + 1])
+
 
     delextra(tosend)
     for i in tosend:
         animate([False, i, 0])
-        ship_map[i[0], i[1]] = 2
+        # ship_map[i[0], i[1]] = 2
 
     return tosend
 
@@ -246,6 +236,13 @@ class Ship(pg.sprite.Sprite):
         self.cond[0] = [x + 1, y + 1, 1]
         for i in range(1, self.decknum):
             self.cond[i] = [self.cond[i - 1][0] + self.adds[0], self.cond[i - 1][1] + self.adds[1], 1]
+
+    def isshipdead(self):
+        s = 0
+        for i in self.cond:
+            s += i[2]
+        return not bool(s)
+
 
     def update(self, pos, relx, rely, scr):
         self.rect.x = pos[0] + relx
