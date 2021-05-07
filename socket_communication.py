@@ -72,7 +72,8 @@ def start(ans, threadevent, animate_function, readyness):
                 ans[1] = None
                 ans[2] = None
             if enemysdeadships == 10:
-                print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeend')
+                sock.send(b'end')
+                # print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeend')
                 ans[0] = 3 #win
                 return
         else:
@@ -95,13 +96,9 @@ def start(ans, threadevent, animate_function, readyness):
                 mysdeadships += 1
             if mysdeadships == 10:
                 ans[0] = 4 # lose
-                print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeend')
+                # print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeend')
                 return
 
         if threadevent.is_set():
             print(1)
             return
-
-
-
-
