@@ -3,6 +3,7 @@ import socket_communication as sc
 import pygame as pg
 import pg_textinput as pt
 from threading import Thread, Event
+# from server import end_serv
 
 
 def main():
@@ -12,7 +13,7 @@ def main():
     # Создание кнопок
     approve_button = Button(field.screen, 'approve', 5, 0, 40, 65, (0, 0, 0), 0, 0)
     # start_game_button = Button(field.screen, 'start the game', 6, 0, 70)
-    menu2_button = Button(field.screen, 'menu', 0, 0, 350, font_size=60)
+    exit_button = Button(field.screen, 'exit', 7, 0, 350, font_size=60)
     enter_ip_button = Button(field.screen, 'connect by id', 1, 0, 170)
     take_file_button = Button(field.screen, 'Take it from the file', 3, 0, 420)
     menu_button = Button(field.screen, 'menu', 0, 30, 30, font_size=35)
@@ -226,7 +227,7 @@ def main():
                     if ans[1] is not None:
                         ans[0] = 2
                 if ans[0] > 2 and event.type == pg.MOUSEBUTTONDOWN:
-                    stage = menu2_button.check(event.button, stage)
+                    stage = exit_button.check(event.button, stage)
 
 
 
@@ -248,9 +249,16 @@ def main():
             elif ans[0] == 4:
                 print_text(field.screen, f'you lose', 0, 100, font_size=40)
             if ans[0] > 2:
-                menu2_button.update_draw()
+                exit_button.update_draw()
             pg.display.flip()
             clock.tick(fps)
+
+        if stage == 7:
+            # try:
+            #     end_serv()
+            # except: pass
+            pg.quit()
+            exit()
 
 
 
