@@ -12,6 +12,8 @@ def end_serv():
     sock.close()
     quit()
 
+
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('127.0.0.1', 9999))
 sock.listen(2)
@@ -67,7 +69,3 @@ while True:
             clients[moving_player].send(frame)
         if not int(bomb_result):
             moving_player = another(moving_player)
-
-
-
-# sock.close()

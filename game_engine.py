@@ -379,6 +379,3 @@ class Button:
             return self.go_stage
         else:
             return stage
-
-
-
