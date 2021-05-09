@@ -1,10 +1,22 @@
-# import server
-# import client
-# from server import end_serv
-#
-# try:
-#     server.serv()
-# except: pass
-#
-# client.main()
-# end_serv()
+import server
+import client
+import  threading
+from threading import Thread
+
+
+cur_trd = threading.current_thread()
+
+
+def runserv():
+    server.run(cur_trd)
+
+t = Thread(target=runserv)
+
+t.start()
+
+
+
+
+client.main()
+
+

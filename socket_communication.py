@@ -13,7 +13,7 @@ def another(i):
 
 def match(host, nick, threadevent, ans):
     try:
-        sock.connect((host, 9999))
+        sock.connect((host, 9998))
         sock.send(nick.encode('utf-8'))
         ans[0] = True
         oppname = sock.recv(1024)

@@ -1,6 +1,9 @@
 import socket
 from random import randint
+import  threading
+from time import sleep
 from threading import Thread
+import sys
 
 def another(i):
     return int(not i)
@@ -8,20 +11,34 @@ def another(i):
 def waitreadyness(s, n):
     s[n].recv(16)
 
-def end_serv():
-    sock.close()
-    quit()
+def watcher(main_tread, sock):
+    while True:
+        sleep(1)
+        if not main_tread.is_alive():
+            sock.close()
+            exit()
 
 
+def run(main_thread):
+    with open('Other\\hostserver.txt', 'r') as f:
+        host = f.readline()
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('127.0.0.1', 9999))
-sock.listen(2)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-while True:
+    try:
+        sock.bind((host, 9998))
+    except:
+        exit()
+    sock.listen(2)
+
+    wtchr = Thread(target=watcher, args=(main_thread, sock))
+    wtchr.start()
+
+
     try:
         clients = [None, None]
         names = [None, None]
+
         client, _ = sock.accept()
         clients[0] = client
         name = client.recv(1024)
@@ -49,23 +66,26 @@ while True:
 
     # Игра
     moving_player = randint(0, 1)
-    moving_player = 0
+    # moving_player = 0
     clients[moving_player].send(b'1')
     clients[another(moving_player)].send(b'0')
 
-    while True:
+    try:
+        while True:
+            coords = clients[moving_player].recv(1024)
+            if coords == b'end':
+                clients[moving_player].close()
+                clients[another(moving_player)].close()
+                break
 
-        coords = clients[moving_player].recv(1024)
-        if coords == b'end':
-            clients[moving_player].close()
-            clients[another(moving_player)].close()
-            break
+            clients[another(moving_player)].send(coords)
+            bomb_result = clients[another(moving_player)].recv(1024)
+            clients[moving_player].send(bomb_result)
+            if bomb_result == b'2':
+                frame = clients[another(moving_player)].recv(1024)
+                clients[moving_player].send(frame)
+            if not int(bomb_result):
+                moving_player = another(moving_player)
+    except:
+        exit()
 
-        clients[another(moving_player)].send(coords)
-        bomb_result = clients[another(moving_player)].recv(1024)
-        clients[moving_player].send(bomb_result)
-        if bomb_result == b'2':
-            frame = clients[another(moving_player)].recv(1024)
-            clients[moving_player].send(frame)
-        if not int(bomb_result):
-            moving_player = another(moving_player)

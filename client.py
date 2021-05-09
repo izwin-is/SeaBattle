@@ -14,7 +14,7 @@ def main():
     approve_button = Button(field.screen, 'approve', 5, 0, 40, 65, (0, 0, 0), 0, 0)
     # start_game_button = Button(field.screen, 'start the game', 6, 0, 70)
     exit_button = Button(field.screen, 'exit', 7, 0, 350, font_size=60)
-    enter_ip_button = Button(field.screen, 'connect by id', 1, 0, 170)
+    enter_ip_button = Button(field.screen, 'connect by id', 1, 0, 0)
     take_file_button = Button(field.screen, 'Take it from the file', 3, 0, 420)
     menu_button = Button(field.screen, 'menu', 0, 30, 30, font_size=35)
     reenter_button = Button(field.screen, 'reenter nick and host', 4, 0, 520)
@@ -157,6 +157,9 @@ def main():
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
+                    try:
+                        del thread
+                    except: pass
                     pg.quit()
                     quit()
                 if event.type == pg.MOUSEBUTTONDOWN and (event.button == 1 or event.button == 3):
