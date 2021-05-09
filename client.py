@@ -2,7 +2,7 @@ from game_engine import *
 import socket_communication as sc
 import pygame as pg
 import pg_textinput as pt
-from threading import Thread, Event
+from threading import Thread, Event, main_thread
 # from server import end_serv
 
 
@@ -32,7 +32,7 @@ def main():
         tinput2 = pt.TextInput(font_size=75, font_family='Other\\Unicephalon.ttf', max_string_length=15)
         isshipmoving = False
         # Меню
-        field.screen.fill((255, 249, 70))
+
         while stage == 0:
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -40,6 +40,8 @@ def main():
                     quit()
                 if event.type == pg.MOUSEBUTTONDOWN:
                     stage = enter_ip_button.check(event.button, stage)
+
+            draw_back1(field.screen)
 
 
             enter_ip_button.update_draw()
@@ -109,7 +111,7 @@ def main():
                     threadevent = Event()
                     threadevent.clear()
                     ans = [None, None]
-                    thread = Thread(target=sc.match, args=(host, nick, threadevent, ans))
+                    thread = Thread(target=sc.match, args=(host, nick, threadevent, ans, main_thread()))
                     thread.start()
                 if not isthread:
                     if threadevent.is_set():
@@ -162,7 +164,7 @@ def main():
                     except: pass
                     pg.quit()
                     quit()
-                if event.type == pg.MOUSEBUTTONDOWN and (event.button == 1 or event.button == 3):
+                if event.type == pg.MOUSEBUTTONDOWN and (event.button == 1 or event.button == 3) and not isshipmoving:
                     print(ship_quant, ' client no change')
                     isshipmoving, relx, rely, ship_num = field.change_ships(event.pos, event.button)
                     stage = approve_button.check(event.button, stage)
@@ -171,7 +173,7 @@ def main():
                     isshipmoving = False
                     isdead = field.place_ship(ship_num)
                     if isdead:
-                        ship_quant[ship.decknum - 1] += 1
+                        # ship_quant[ship.decknum - 1] += 1
                         print(ship_quant, ' client')
 
             # Обновления объектов
@@ -218,12 +220,9 @@ def main():
                     print(i.cond, i.orientation)
 
         while stage == 5:
-            # print('ans ', ans)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
-                    threadevent.set()
-                    del thread
                     quit()
                 if event.type == pg.MOUSEBUTTONDOWN and ans[0] == 1:
                     ans[1] = check_bomb_position(event.pos)

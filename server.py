@@ -55,24 +55,24 @@ def run(main_thread):
         exit()
 
     # Понять, что корабли расставлены
-
-    thread = Thread(target=waitreadyness, args=(clients, 0))
-    thread.start()
-    waitreadyness(clients, 1)
-    thread.join()
-    clients[0].send(b'0')
-    clients[1].send(b'0')
-
-
-    # Игра
-    moving_player = randint(0, 1)
-    # moving_player = 0
-    clients[moving_player].send(b'1')
-    clients[another(moving_player)].send(b'0')
-
     try:
+        thread = Thread(target=waitreadyness, args=(clients, 0))
+        thread.start()
+        waitreadyness(clients, 1)
+        thread.join()
+        clients[0].send(b'0')
+        clients[1].send(b'0')
+
+
+        # Игра
+        moving_player = randint(0, 1)
+        # moving_player = 0
+        clients[moving_player].send(b'1')
+        clients[another(moving_player)].send(b'0')
+
         while True:
             coords = clients[moving_player].recv(1024)
+            print(coords, 'coords')
             if coords == b'end':
                 clients[moving_player].close()
                 clients[another(moving_player)].close()
@@ -80,6 +80,7 @@ def run(main_thread):
 
             clients[another(moving_player)].send(coords)
             bomb_result = clients[another(moving_player)].recv(1024)
+            print(bomb_result, 'bomb_result')
             clients[moving_player].send(bomb_result)
             if bomb_result == b'2':
                 frame = clients[another(moving_player)].recv(1024)

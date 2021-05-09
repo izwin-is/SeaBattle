@@ -19,6 +19,14 @@ X4, Y4 = 11, 4
 XS = (X1, X2, X3, X4)
 YS = (Y1, Y2, Y3, Y4)
 
+def draw_back1(screen):
+    y = pg.mouse.get_pos()[1]
+    screen.blit(back1, (0, -y))
+
+def draw_back2(screen):
+    y = pg.mouse.get_pos()[1]
+    screen.blit(back2, (0, -y))
+
 
 def check_collisions(deck_num, orient, realx, realy):
     global ship_map, ship_quant
@@ -215,6 +223,7 @@ class Ship(pg.sprite.Sprite):
     def __init__(self, decknum, x, y, orientation):
         super().__init__(ships)
         self.decknum = decknum
+        ship_quant[self.decknum - 1] -= 1
         if orientation == 'vertical':
             self.image = deckimages[decknum - 1]
         else:
@@ -252,6 +261,10 @@ class Ship(pg.sprite.Sprite):
         #     self.cond[i] = [self.cond[0][0] + self.adds[0] * i, self.cond[0][1] + self.adds[1] * i]
         # self.draw(scr)
 
+    def killl(self):
+        ship_quant[self.decknum - 1] += 1
+        self.kill()
+
 
 class GameField:
     def __init__(self, h, w):
@@ -279,7 +292,7 @@ class GameField:
             orientation = 'horizontal'
         for i in range(4):
             if XS[i] * 75 <= posx <= (XS[i] + 1) * 75 and YS[i] * 75 <= posy <= (YS[i] + i + 1) * 75:
-                ship_quant[i] -= 1
+                # ship_quant[i] -= 1
                 print(ship_quant, ' engine')
                 if orientation == 'vertical': addy = 0
                 else: addy = round((posy // 75 - YS[i]) * 75) #корректировка координат для горизонтальных кораблей
@@ -301,18 +314,18 @@ class GameField:
 
         if ship.orientation == 'vertical':
             if realx < 0 or realx > 9 or realy < 0 or realy + ship.decknum - 1 > 9:
-                ship.kill()
+                ship.killl()
                 return True
         else:
             if realx < 0 or realx + ship.decknum - 1 > 9 or realy < 0 or realy > 9:
-                ship.kill()
+                ship.killl()
                 return True
         if check_collisions(ship.decknum, ship.orientation, realx + 1, realy + 1):
             # ship.rect.x = 75 * realx
             # ship.rect.y = 75 * realy
             ship.toplace(realx, realy)
         else:
-            ship.kill()
+            ship.killl()
             return True
         return False
 
@@ -331,7 +344,7 @@ class GameField:
         # pg.display.flip()
 
     def draw_static(self, issipsdrawing=1):
-        self.screen.fill((0, 60, 180))
+        draw_back2(self.screen)
         self.draw_net()
         if issipsdrawing:
             self.draw_static_ships()
