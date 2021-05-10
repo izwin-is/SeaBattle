@@ -80,9 +80,9 @@ def draw_inputs(screen):
 
 
 def write_to_files(nick, host):
-    with open('D:\\PycharmProjects\\SeaBattle\\Other\\nick.txt', 'w') as f:
+    with open('Other\\nick.txt', 'w') as f:
         print(nick, file=f)
-    with open('D:\\PycharmProjects\\SeaBattle\\Other\\host.txt', 'w') as f:
+    with open('Other\\host.txt', 'w') as f:
         print(host, file=f)
 
 

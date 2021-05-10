@@ -1,9 +1,9 @@
 import socket
 from random import randint
-import  threading
 from time import sleep
 from threading import Thread
-import sys
+from forimport import mainhost
+
 
 def another(i):
     return int(not i)
@@ -20,15 +20,23 @@ def watcher(main_tread, sock):
 
 
 def run(main_thread):
-    with open('Other\\hostserver.txt', 'r') as f:
-        host = f.readline()
+    # with open('Other\\hostserver.txt', 'r') as f:
+    #     host = f.readline()
 
+    while True:
+        if mainhost[0] is None:
+            sleep(0.3)
+        else:
+            host = mainhost[0]
+            break
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    try:
-        sock.bind((host, 9998))
-    except:
-        exit()
+    # try:
+    #     sock.bind((host, 9998))
+    # except:
+    #     print('server is out')
+    #     exit()
+    sock.bind((host, 9998))
     sock.listen(2)
 
     wtchr = Thread(target=watcher, args=(main_thread, sock))

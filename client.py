@@ -73,6 +73,7 @@ def main():
                         del tinput1
                     if enterinput == 2:
                         host = tinput2.get_text()
+                        mainhost[0] = host
                         del tinput2
                 if event.type == pg.MOUSEBUTTONDOWN:
                     stage = take_file_button.check(event.button, stage)
@@ -124,9 +125,9 @@ def main():
             if stage == 3:
                 stage = 1
                 try:
-                    with open('D:\\PycharmProjects\\SeaBattle\\Other\\nick.txt', 'r') as f:
+                    with open('Other\\nick.txt', 'r') as f:
                         nick = f.readline()[:-1]
-                    with open('D:\\PycharmProjects\\SeaBattle\\Other\\host.txt', 'r') as f:
+                    with open('Other\\host.txt', 'r') as f:
                         host = f.readline()[:-1]
 
                     if nick == '' or host == '':
